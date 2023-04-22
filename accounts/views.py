@@ -20,7 +20,8 @@ from django.contrib.auth.hashers import make_password
 import os
 import uuid
 from .serializers import ProfileSerializer
-
+from  channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 class UserListView(APIView):
 
      authentication_classes = [authentication.TokenAuthentication]
@@ -535,6 +536,7 @@ class checkedalert(APIView):
 
 class createalert(APIView):
 
+
      authentication_classes = [authentication.TokenAuthentication]
      permission_classes = [permissions. IsAuthenticated]
 
@@ -557,6 +559,11 @@ class createalert(APIView):
              for i in group.visible_to.all():
                  print(i)
                  if not(i == user.profile):
+                     channel_layer=get_channel_layer()
+                     async_to_sync(channel_layer.group_send)( str(i.id) ,{'type':'send_notification','value':{"test":"5let"}})
+		
+
+                     
                      alert.alert_receiver.add(i)
 
 
